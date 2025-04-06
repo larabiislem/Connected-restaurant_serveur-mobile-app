@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
     
   },
   navIconU: {
-    marginTop:18,
+    marginTop:17,
     width: 39,
     height: 39,
     marginRight:20,
