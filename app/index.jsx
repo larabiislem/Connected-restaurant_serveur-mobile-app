@@ -20,7 +20,7 @@ const App = () => {
   const [error, setError] = useState(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
 
-  const id_serveur = 9; // Remplacez par l'ID réel du serveur
+  const id_serveur =9 ;
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
