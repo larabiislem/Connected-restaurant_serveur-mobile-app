@@ -44,15 +44,13 @@ const App = () => {
         // Requête pour les notifications du chef
         const chefQuery = query(
           collection(db, 'notifications_serveur'),
-          where('id_serveur', '==', id_serveur),
-          where('type', '==', 'commande_prête')
+          where('id_serveur', '==', id_serveur)
         );
 
         // Requête pour les notifications du client
         const clientQuery = query(
-          collection(db, 'notifications_serveur'),
-          where('id_serveur', '==', id_serveur),
-          where('type', '==', 'call_waiter')
+          collection(db, 'notifications_serveur_pour_client'),
+          where('id_serveur', '==', id_serveur)
         );
 
         const [chefSnapshot, clientSnapshot] = await Promise.all([
