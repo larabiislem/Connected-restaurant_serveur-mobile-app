@@ -20,7 +20,7 @@ const App = () => {
   const [error, setError] = useState(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
 
-  const id_serveur = 2; // Remplacez par l'ID réel du serveur
+  const id_serveur = 9; // Remplacez par l'ID réel du serveur
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -88,7 +88,7 @@ const App = () => {
   }, [isAuthReady]);
 
   return (
-    <NavigationContainer>
+    
       <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home">
           {props => (
@@ -122,7 +122,7 @@ const App = () => {
           )}
         </Stack.Screen>
       </Stack.Navigator>
-    </NavigationContainer>
+    
   );
 };
 
