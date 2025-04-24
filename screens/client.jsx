@@ -2,21 +2,29 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const ClientScreen = ({ notifications, loading, error }) => {
+const ClientScreen = ({ notifications, loading, error, markAsCompleted }) => {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
+  const [Completednotif , setCompletednotif] = useState([]);
 
   const formatTime = (date) => {
-    if (!date) return 'Just now';
+    if (!date) return 'Now';
     const now = new Date();
     const diffInMinutes = Math.floor((now - date) / (1000 * 60));
-    return diffInMinutes > 0 ? `${diffInMinutes}m ago` : 'Just now';
+    return `${diffInMinutes}m`;
   };
 
   const openNotificationDetails = (notification) => {
     setSelectedNotification(notification);
     setModalVisible(true);
+  };
+
+  const handleMarkCompleted =  () => {
+    if (selectedNotification) {
+     setCompletednotif([...Completednotif, selectedNotification]);
+      setModalVisible(false);
+    }
   };
 
   if (loading) {
@@ -83,7 +91,7 @@ const ClientScreen = ({ notifications, loading, error }) => {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
         >
-          {notifications.filter(order => order.isRead).map(order => (
+          {Completednotif.map(order => (
             <View style={styles.pen} key={order.id}>
               <TouchableOpacity onPress={() => openNotificationDetails(order)}>
                 <View style={styles.completedItem}>
@@ -97,7 +105,6 @@ const ClientScreen = ({ notifications, loading, error }) => {
         </ScrollView>
       </ScrollView>
 
-      {/* Notification Modal */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -112,6 +119,15 @@ const ClientScreen = ({ notifications, loading, error }) => {
                 <Text style={styles.modalText}>Table: {selectedNotification.id_table}</Text>
                 <Text style={styles.modalText}>Message: {selectedNotification.message}</Text>
                 <Text style={styles.modalText}>Time: {formatTime(selectedNotification.createdAt)}</Text>
+                
+                {!selectedNotification.isRead && (
+                  <TouchableOpacity
+                    style={styles.modalButtonCompleted}
+                    onPress={handleMarkCompleted}
+                  >
+                    <Text style={styles.modalButtonText}>Mark Completed</Text>
+                  </TouchableOpacity>
+                )}
               </>
             )}
             <TouchableOpacity
@@ -266,6 +282,13 @@ const styles = StyleSheet.create({
   modalButton: {
     marginTop: 20,
     backgroundColor: '#9e090f',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  modalButtonCompleted: {
+    marginTop: 10,
+    backgroundColor: '#2F7B2B',
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
