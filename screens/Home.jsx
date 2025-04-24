@@ -8,12 +8,16 @@ const HomeScreen = ({ chefNotifications, clientNotifications, loading, error }) 
   const [selectedNotification, setSelectedNotification] = useState(null);
 
   const formatTime = (date) => {
-    if (!date) return 'Just now';
+    if (!date) return 'Date inconnue';
+    
     const now = new Date();
-    const diffInMinutes = Math.floor((now - date) / (1000 * 60));
-    return diffInMinutes > 0 ? `${diffInMinutes}m ago` : 'Just now';
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    
+    if (diffInSeconds < 60) return `${diffInSeconds} secondes`;
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} heures`;
+    return `${Math.floor(diffInSeconds / 86400)} jours`;
   };
-
   const openNotificationDetails = (notification) => {
     setSelectedNotification(notification);
     setModalVisible(true);

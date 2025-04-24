@@ -1,36 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import markNotificationRead from '../api_mark_read';
 
 const ChefScreen = ({ notifications, loading, error, markAsCompleted }) => {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
-  const [pendingNotif, setPendingNotif] = useState([]);
-  const [completedNotif, setCompletedNotif] = useState([]);
-  const [currentTime, setCurrentTime] = useState(new Date());
-
-  // Mettre à jour le temps toutes les minutes
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000); // Mise à jour toutes les minutes
-
-    return () => clearInterval(timer);
-  }, []);
-
-  // Initialiser les notifications
-  useEffect(() => {
-    if (notifications) {
-      setPendingNotif(notifications.filter(n => !n.isRead));
-      setCompletedNotif(notifications.filter(n => n.isRead));
-    }
-  }, [notifications]);
 
   const formatTime = (date) => {
     if (!date) return 'Date inconnue';
     
-    const now = currentTime;
+    const now = new Date();
     const diffInSeconds = Math.floor((now - date) / 1000);
     
     if (diffInSeconds < 60) return `${diffInSeconds} secondes`;
@@ -44,16 +25,14 @@ const ChefScreen = ({ notifications, loading, error, markAsCompleted }) => {
     setModalVisible(true);
   };
 
-  const handleMarkCompleted = () => {
+  const handleMarkCompleted = async () => {
     if (selectedNotification) {
-      // Mettre à jour Firestore
-      //markAsCompleted(selectedNotification.id);
-      
-      // Mettre à jour l'état local
-      setPendingNotif(pendingNotif.filter(n => n.id !== selectedNotification.id));
-      setCompletedNotif([...completedNotif, {...selectedNotification, isRead: true}]);
-      
-      setModalVisible(false);
+      const res = await markNotificationRead("notifications_serveur",selectedNotification.id);
+      if (res) {
+        setModalVisible(false);
+      } else {
+        console.error("Failed to mark notification as completed");
+      }
     }
   };
 
@@ -102,12 +81,12 @@ const ChefScreen = ({ notifications, loading, error, markAsCompleted }) => {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
         >
-          {pendingNotif.map(order => (
+          {notifications.filter(order => !order.isRead).map(order => (
             <View style={styles.pen} key={order.id}>
               <TouchableOpacity onPress={() => openNotificationDetails(order)}>
                 <View style={styles.pendingItem}>
                   <Text style={styles.tableText}>Table {order.id_table}</Text>
-                  <Text style={styles.timeText}>  il ya {formatTime(order.createdAt)}</Text>
+                  <Text style={styles.timeText}>{formatTime(order.createdAt)}</Text>
                   <Text style={styles.notificationText}>{order.message}</Text>
                 </View>
               </TouchableOpacity>
@@ -121,12 +100,12 @@ const ChefScreen = ({ notifications, loading, error, markAsCompleted }) => {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
         >
-          {completedNotif.map(order => (
+          {notifications.filter(order => order.isRead).map(order => (
             <View style={styles.pen} key={order.id}>
               <TouchableOpacity onPress={() => openNotificationDetails(order)}>
                 <View style={styles.completedItem}>
                   <Text style={styles.tableText}>Table {order.id_table}</Text>
-                  <Text style={styles.timeText}>  il ya{formatTime(order.createdAt)}</Text>
+                  <Text style={styles.timeText}>{formatTime(order.createdAt)}</Text>
                   <Text style={styles.notificationText}>{order.message}</Text>
                 </View>
               </TouchableOpacity>
@@ -203,6 +182,7 @@ const ChefScreen = ({ notifications, loading, error, markAsCompleted }) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
@@ -377,21 +357,3 @@ const styles = StyleSheet.create({
 });
 
 export default ChefScreen;
-
-// ... (le reste du style reste inchangé)
-// ... (le reste du style reste inchangé)
-
-/*
-
-
-  const formatTime = (date) => {
-    if (!date) return 'Date inconnue';
-    
-    const now = currentTime;
-    const diffInSeconds = Math.floor((now - date) / 1000);
-    
-    if (diffInSeconds < 60) return `${diffInSeconds} secondes`;
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} heures`;
-    return `${Math.floor(diffInSeconds / 86400)} jours`;
-  };*/

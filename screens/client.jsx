@@ -1,18 +1,23 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import markNotificationRead from '../api_mark_read';
 
 const ClientScreen = ({ notifications, loading, error, markAsCompleted }) => {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
-  const [Completednotif , setCompletednotif] = useState([]);
 
   const formatTime = (date) => {
-    if (!date) return 'Now';
+    if (!date) return 'Date inconnue';
+    
     const now = new Date();
-    const diffInMinutes = Math.floor((now - date) / (1000 * 60));
-    return `${diffInMinutes}m`;
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    
+    if (diffInSeconds < 60) return `${diffInSeconds} secondes`;
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} heures`;
+    return `${Math.floor(diffInSeconds / 86400)} jours`;
   };
 
   const openNotificationDetails = (notification) => {
@@ -20,10 +25,14 @@ const ClientScreen = ({ notifications, loading, error, markAsCompleted }) => {
     setModalVisible(true);
   };
 
-  const handleMarkCompleted =  () => {
+  const handleMarkCompleted = async () => {
     if (selectedNotification) {
-     setCompletednotif([...Completednotif, selectedNotification]);
-      setModalVisible(false);
+      const res = await markNotificationRead("notifications_serveur_pour_client",selectedNotification.id);
+      if (res) {
+        setModalVisible(false);
+      } else {
+        console.error("Failed to mark notification as completed");
+      }
     }
   };
 
@@ -91,7 +100,7 @@ const ClientScreen = ({ notifications, loading, error, markAsCompleted }) => {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
         >
-          {Completednotif.map(order => (
+          {notifications.filter(order => order.isRead).map(order => (
             <View style={styles.pen} key={order.id}>
               <TouchableOpacity onPress={() => openNotificationDetails(order)}>
                 <View style={styles.completedItem}>
