@@ -1,8 +1,36 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import loginPersonnel from '../api_login';
 
-const SignUpScreen = () => {
+
+
+
+const SignInScreen = ({ navigation }) => {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+
+  const handleSignIn = async () => {
+    if (!email || !password) {
+      Alert.alert('Erreur', 'Veuillez remplir tous les champs');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await loginPersonnel(email, password);
+      await AsyncStorage.setItem('serveurId', response.data.personnel.id.toString());
+      navigation.navigate('Home');
+    
+    } catch (error) {
+      console.error('Login error:', error);
+      Alert.alert('Erreur', 'Identifiants incorrects ou problème de connexion');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -11,20 +39,36 @@ const SignUpScreen = () => {
         <Text style={styles.title}>Welcome back !</Text>
       </View>
      
-      <TextInput placeholder="E-mail" style={styles.input} />
-      <TextInput placeholder="Password" style={styles.input} secureTextEntry onChangeText={setPassword} />
+      <TextInput 
+        placeholder="E-mail" 
+        style={styles.input} 
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+      />
+      <TextInput 
+        placeholder="Password" 
+        style={styles.input} 
+        secureTextEntry 
+        value={password}
+        onChangeText={setPassword}
+      />
       
-     
-    
-      
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Sign In</Text>
+      <TouchableOpacity 
+        style={styles.button}
+        onPress={handleSignIn}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>
+          {loading ? 'Chargement...' : 'Sign In'}
+        </Text>
       </TouchableOpacity>
-    
     </View>
   );
 };
 
+// ... (le reste du style reste inchangé)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -84,4 +128,4 @@ const styles = StyleSheet.create({
   
 });
 
-export default SignUpScreen;
+export default SignInScreen;

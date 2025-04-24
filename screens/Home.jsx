@@ -66,14 +66,14 @@ const HomeScreen = ({ chefNotifications, clientNotifications, loading, error }) 
             </TouchableOpacity>
           </View>
           
-          {chefNotifications.slice(0, 3).map(notification => (
+          {chefNotifications.slice(0, 3).filter(order => !order.isRead).map(notification => (
             <TouchableOpacity 
               key={notification.id} 
               onPress={() => openNotificationDetails(notification)}
             >
               <View style={styles.pendingItem}>
                 <Text style={styles.tableText}>Table {notification.id_table}</Text>
-                <Text style={styles.timeText}>{formatTime(notification.createdAt)}</Text>
+                <Text style={styles.timeText}>  {formatTime(notification.createdAt)}</Text>
                 <Text style={styles.notificationText}>{notification.message}</Text>
               </View>
             </TouchableOpacity>
@@ -95,14 +95,14 @@ const HomeScreen = ({ chefNotifications, clientNotifications, loading, error }) 
             </TouchableOpacity>
           </View>
           
-          {clientNotifications.slice(0, 3).map(notification => (
+          {clientNotifications.slice(0, 3).filter(order => !order.isRead).map(notification => (
             <TouchableOpacity 
               key={notification.id} 
               onPress={() => openNotificationDetails(notification)}
             >
               <View style={styles.pendingItem}>
                 <Text style={styles.tableText}>Table {notification.id_table}</Text>
-                <Text style={styles.timeText}>{formatTime(notification.createdAt)}</Text>
+                <Text style={styles.timeText}>  {formatTime(notification.createdAt)}</Text>
                 <Text style={styles.notificationText}>{notification.message}</Text>
               </View>
             </TouchableOpacity>
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   header: { 
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#9e090f',
+    backgroundColor: '#FFC107',
     padding: 20 
   },
   profileImage: { 
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#FFC107',
+    backgroundColor: '#9e090f',
     padding: 15,
     borderRadius: 10,
     marginVertical: 5,
