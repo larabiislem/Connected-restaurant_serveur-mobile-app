@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import loginPersonnel from '../api_login';
-
+import { registerFCMToken } from '../app/fcmService'; // tout en haut
 
 
 
@@ -21,7 +21,20 @@ const SignInScreen = ({ navigation }) => {
     setLoading(true);
     try {
       const response = await loginPersonnel(email, password);
-      await AsyncStorage.setItem('serveurId', response.data.personnel.id.toString());
+      console.log("✅ Connexion réussie, réponse serveur :", response.data);
+      if (response.data && response.data.personnel) {
+        const { id, role = "non défini" } = response.data.personnel;
+      
+        console.log(`✅ ID utilisateur : ${id}, rôle : ${role}`);
+      
+        await AsyncStorage.setItem('serveurId', id.toString());
+        await registerFCMToken({ id_user: id, role });
+        console.log("✅ Token FCM enregistré avec succès");
+      } else {
+        console.error("❌ Données utilisateur non trouvées dans la réponse serveur :", response.data);
+        Alert.alert('Erreur', "Impossible de récupérer les infos utilisateur");
+      }
+   
       navigation.navigate('Home');
     
     } catch (error) {

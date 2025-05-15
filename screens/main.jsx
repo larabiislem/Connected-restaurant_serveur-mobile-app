@@ -10,6 +10,8 @@ import ChefScreen from '../screens/chef';
 import ClientScreen from '../screens/client';
 import HomeScreen from '../screens/Home';
 import SignInScreen from '../screens/Sign_In';
+import { registerFCMToken } from '../app/fcmService';
+import { setupFCMForegroundHandler } from '../app/fcmHandler';
 
 setLogLevel('debug');
 
@@ -101,12 +103,18 @@ const Main = () => {
         setLoading(false);
       }
     };
+    
 
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, [isAuthReady, serveurId]);
 
+  useEffect(() => {
+    // 👇 Ceci est suffisant pour activer la réception des notifs en avant-plan
+    setupFCMForegroundHandler();
+  }, []);
+  
   return (
    
       <Stack.Navigator screenOptions={{ headerShown: false }}>
