@@ -9,6 +9,12 @@ export async function requestUserPermission() {
   );
 }
 
+
+
+
+
+
+
 export async function registerFCMToken({ id_user, role }) {
   const permission = await requestUserPermission();
   if (!permission) return;
